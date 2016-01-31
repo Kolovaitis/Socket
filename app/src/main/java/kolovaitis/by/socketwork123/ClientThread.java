@@ -29,6 +29,8 @@ public class ClientThread implements Runnable {
                         data = reader.readLine();
                         if (data == null) {
                             data = "Server is not ready";
+                            socket.close();
+                            socket=new Socket(SERVER_IP, SERVER_PORT);
                             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         }
 
