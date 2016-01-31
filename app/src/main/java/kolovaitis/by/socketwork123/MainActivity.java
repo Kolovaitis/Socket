@@ -22,47 +22,93 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.prefs.Preferences;
 
 public class MainActivity extends AppCompatActivity {
-public static ArrayList<String>results=new ArrayList<>();
+    public static ArrayList<String> results;
     static TextView text;
-    private static ClientThread clientThread;
+    public static ClientThread clientThread;
+    public boolean wasClosed;
 
-    private static final int SLEEP_TIME = 1000;
-
-
-    private static final int READ_ATTEMPTS = 10;
-MyTask task;
+    static TextView textView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        wasClosed = false;
+        MyTask.canWork=true;
+        textView=((TextView)findViewById(R.id.textView));
+
         text = (TextView) findViewById(R.id.task);
-task=new MyTask();
-        new MainTask().execute();
+        results = new ArrayList<>();
 
+        startClient();
+        work();
+        for(int i=0;i<400;i++)
+            MainActivity.animate();
+    startAnimate();
+   }
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(wasClosed){
+         Intent intent=new Intent(this,MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
-    public void reuse(){
-try{        text.setText(results.get(results.size() - 1));}catch (ArrayIndexOutOfBoundsException e){}
 
+public static void animate(){
+
+    textView.setText((char)(new Random().nextInt(1000)) + "" + textView.getText());
+    if(textView.getText().length()>10000)textView.setText((textView.getText()+"").substring(1000));
+}
+    public void startClient() {
+        MainActivity.clientThread = new ClientThread();
+        Thread thread = new Thread(MainActivity.clientThread);
+        thread.start();
+    }
+    public static void startAnimate() {
+
+        new AnimateTask().execute();
+    }
+    public static void work() {
         new MyTask().execute();
     }
-    public void exit(View v){
-        results.clear();
-        text.setText("");
+
+    public static void draw() {
+        try {
+            text.setTextSize(80);
+            text.setText(results.get(results.size() - 1));
+        } catch (ArrayIndexOutOfBoundsException e) {
+        }
+
+
+    }
+public static void drawText(String s){
+    text.setTextSize(40);
+    text.setText(s);
+}
+    public void exit(View v) {
+
+        clientThread.setFinished(true);
+        MyTask.canWork = false;
         finish();
     }
-    public void history(View v){
-        ScrollView scroll=new ScrollView(this);
-        LinearLayout linear=new LinearLayout(this);
+
+    public void history(View v) {
+        ScrollView scroll = new ScrollView(this);
+        LinearLayout linear = new LinearLayout(this);
         linear.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(linear);
-        for(int i=0;i<results.size();i++){
-            TextView textView=new TextView(this);
+        for (int i = 0; i < results.size(); i++) {
+            if(!results.get(i).equals("")){TextView textView = new TextView(this);
             textView.setText(results.get(i));
             textView.setGravity(Gravity.CENTER);
-            linear.addView(textView);
+            linear.addView(textView);}
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("History")
@@ -78,112 +124,12 @@ try{        text.setText(results.get(results.size() - 1));}catch (ArrayIndexOutO
         AlertDialog alert = builder.create();
         alert.show();
     }
-    public void close(View v){
+
+    public void close(View v) {
         Intent startMain = new Intent(Intent.ACTION_MAIN);
         startMain.addCategory(Intent.CATEGORY_HOME);
         startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(startMain);
     }
-    class ClientThread implements Runnable {
-        private Socket socket;
-        private BufferedReader reader;
-        private boolean finished = false;
-        private static final int SERVER_PORT = 4444;
-        private String data;
-        private static final String SERVER_IP = "46.101.96.234";
-
-        @Override
-        public void run() {
-            try {
-                //StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
-                socket = new Socket(SERVER_IP, SERVER_PORT);
-                data = "";
-                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String s;
-
-                while (!data.equals("-")) {
-                    try {
-                        Thread.sleep(SLEEP_TIME);
-                        if(!finished) {
-                            s = reader.readLine();
-                            if(s == null){
-                                data = "Connection is failed";
-                                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                            }
-                            data = s;
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                socket.close();
-            } catch (IOException e) {
-                data = e.getMessage();
-            }
-        }
-
-        public boolean getFinished(){
-            return this.finished;
-        }
-
-        public void setFinished(boolean finished) {
-            this.finished = finished;
-        }
-
-        public String getString() throws IOException {
-            return data;
-        }
-
-
-
-    }
-    public class MyTask extends AsyncTask {
-        @Override
-        protected Object doInBackground(Object[] objects) {
-
-
-
-
-
-            try {
-                Thread.sleep(SLEEP_TIME);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-
-                try {
-
-                   results.add(clientThread.getString());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-
-
-
-
-
-
-        return null;
-        }
-
-        @Override
-        protected void onPostExecute(Object o) {
-            super.onPostExecute(o);
-
-            reuse();
-        }
-    }
-    public class MainTask extends AsyncTask {
-        @Override
-        protected Object doInBackground(Object[] objects) {
-           MainActivity.clientThread = new ClientThread();
-            Thread thread = new Thread(clientThread);
-            thread.start();
-            reuse();
-            return null;
-        }
-    }
 }
+

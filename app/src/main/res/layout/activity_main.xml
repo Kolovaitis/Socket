@@ -9,19 +9,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="kolovaitis.by.socketwork123.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/task"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:gravity="center"
-        android:textSize="80dp"
-        android:layout_above="@+id/button3"
-        android:layout_below="@+id/linearLayout" />
-
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -30,25 +17,9 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:gravity="right"
-        android:background="@drawable/bar"
+        android:background="#2aaf0c"
         android:weightSum="1"
         android:id="@+id/linearLayout">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageView"
-            android:layout_alignTop="@+id/linearLayout"
-            android:layout_alignLeft="@+id/linearLayout"
-            android:layout_alignStart="@+id/linearLayout"
-            android:background="@mipmap/ic_launcher" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:text="Nikitos application with socket"
-            android:id="@+id/textView"
-            android:layout_weight="0.89" />
 
         <Button
             android:layout_width="50dp"
@@ -80,7 +51,43 @@
         android:id="@+id/button3"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:background="#00ffffff"
+        android:background="#FF2AAF0C"
         android:onClick="history" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textColor="#FF2AAF0C"
+        android:textSize="30dp"
+        android:layout_above="@+id/button3"
+        android:background="#000000"
+        android:gravity="fill_horizontal"
+        android:layout_below="@+id/linearLayout" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+
+        android:shadowColor="#0000ff"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="5"
+        android:id="@+id/task"
+        android:gravity="center"
+        android:textSize="80dp"
+        android:textColor="#54f434"
+        android:textStyle="bold|italic"
+        android:elegantTextHeight="false"
+
+        />
+
 
 </RelativeLayout>
